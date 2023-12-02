@@ -1,185 +1,210 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useParams, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { updateLetterContent, removeLetter } from "../redux/modules/letters";
+import {
+  __deleteLetter,
+  __updateLetterContent,
+} from "../redux/modules/lettersSlice";
 import styled from "styled-components";
-const Detail = () => {
-  const { id } = useParams();
+
+function Detail() {
   const location = useLocation();
-  const letter = location.state;
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const letter = location.state;
+  const [updatedContent, setUpdatedContent] = useState(letter.content);
   const [isEditing, setIsEditing] = useState(false);
-  const [newContent, setNewContent] = useState(letter.contents);
-  const [updated, setUpdated] = useState(false);
 
   useEffect(() => {
-    setNewContent(letter.contents);
-    setUpdated(false);
-  }, [letter.contents]);
+    const userData = JSON.parse(localStorage.getItem("userData"));
 
-  const handleUpdateContent = () => {
-    if (!newContent.trim()) {
-      alert("내용을 입력해 주세요.");
+    if (!userData.accessToken) {
+      navigate("login");
+    }
+  }, [navigate]);
+
+  const handleDelete = (letterId) => {
+    const confirmed = window.confirm("정말로 이 편지를 삭제하시겠습니까?");
+    if (confirmed) {
+      dispatch(__deleteLetter(letterId))
+        .unwrap()
+        .then(() => {
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("Error deleting letter:", error);
+        });
+    }
+  };
+
+  const handleUpdateContent = (letterId, content) => {
+    if (content.trim() === "") {
+      alert("내용을 입력해주세요.");
       return;
     }
 
-    if (newContent === letter.contents) {
-      alert("변경된 내용이 없습니다.");
-      return;
-    }
-
-    const confirmUpdate = window.confirm("내용을 수정하시겠습니까?");
-    if (confirmUpdate) {
-      dispatch(updateLetterContent({ id: letter.id, newContent }));
+    if (content === letter.content) {
+      alert("변경된 사항이 없습니다.");
       setIsEditing(false);
-      setUpdated(true);
+      return;
+    }
+
+    const confirmed = window.confirm("편지 내용을 수정하시겠습니까?");
+    if (confirmed) {
+      dispatch(__updateLetterContent({ letterId, updatedContent: content }))
+        .unwrap()
+        .then(() => {
+          alert("편지 내용이 수정되었습니다.");
+          setIsEditing(false);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.error("Error updating letter content:", error);
+        });
     }
   };
 
-  const handleCancelEdit = () => {
-    setNewContent(letter.contents);
-    setIsEditing(false);
-  };
-
-  const handleDelete = () => {
-    const confirmDelete = window.confirm("정말로 삭제하시겠습니까?");
-    if (confirmDelete) {
-      dispatch(removeLetter(letter.id));
-      window.location.href = "/";
-    }
-  };
-
-  useEffect(() => {
-    if (updated) {
-      window.location.href = "/";
-    }
-  }, [updated]);
-
-  if (!letter) {
-    return <div>No letter found!</div>;
-  }
+  const userData = JSON.parse(localStorage.getItem("userData"));
+  const isSameUser = userData.userId === letter.userId;
 
   return (
-    <Container>
-      <ContentWrapper>
-        <h2>닉네임: {letter.nickname}</h2>
+    <PageContainer>
+      <DetailContainer>
+        <AvatarContainer>
+          <Avatar src={letter.avatar} alt="Avatar" />
+          <UserInfo>
+            <LetterNickname>닉네임: {letter.nickname}</LetterNickname>
+            <SentTo>Sent to: {letter.writedTo}</SentTo>
+          </UserInfo>
+        </AvatarContainer>
         {isEditing ? (
-          <TextArea
-            value={newContent}
-            onChange={(e) => setNewContent(e.target.value)}
-            placeholder="최대 100자 까지 작성할 수 있습니다"
-            maxLength={100}
-          />
+          <div>
+            <Textarea
+              type="text"
+              value={updatedContent}
+              onChange={(e) => setUpdatedContent(e.target.value)}
+              placeholder="최대 100자 까지 작성할 수 있습니다"
+              maxLength={100}
+            />
+            <UpdateButton
+              onClick={() => handleUpdateContent(letter.id, updatedContent)}
+            >
+              수정하기
+            </UpdateButton>
+            <Button onClick={() => setIsEditing(false)}>수정 취소</Button>
+          </div>
         ) : (
-          <p>내용: {letter.contents}</p>
+          <LetterContent>{letter.content}</LetterContent>
         )}
-        <CreatedAt>{letter.createdAt}</CreatedAt>
-      </ContentWrapper>
-      <ButtonContainer>
-        {isEditing ? (
-          <>
-            <Button onClick={handleUpdateContent}>완료</Button>
-            <Button onClick={handleCancelEdit}>취소</Button>
-          </>
-        ) : (
-          <Button onClick={() => setIsEditing(true)}>수정</Button>
+        <CreatedAt>최초 등록 날자: {letter.createdAt}</CreatedAt>
+        {!isEditing && isSameUser && (
+          <Button onClick={() => setIsEditing(true)}>내용 수정하기</Button>
         )}
-        <DeleteLink onClick={handleDelete}>삭제하기</DeleteLink>
-        <HomeButton to="/">Home</HomeButton>
-      </ButtonContainer>
-    </Container>
+        {!isEditing && isSameUser && (
+          <DeleteButton onClick={() => handleDelete(letter.id)}>
+            Fan Letter 삭제
+          </DeleteButton>
+        )}
+      </DetailContainer>
+    </PageContainer>
   );
-};
+}
 
 export default Detail;
 
-const Container = styled.div`
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #fe3228;
-  border-radius: 8px;
-
-  &:hover {
-    backdrop-filter: blur(8px);
-  }
-`;
-
-const ContentWrapper = styled.div`
+const AvatarContainer = styled.div`
+  display: flex;
+  align-items: center;
   margin-bottom: 20px;
+`;
 
-  h2 {
-    font-size: 35px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-align: center;
-  }
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
+`;
 
-  p {
-    font-size: 30px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    text-align: center;
+const PageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+`;
+
+const DetailContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 600px;
+  max-height: 800px;
+  border-radius: 10px;
+  border: 1px solid #fe3228;
+  &:hover {
+    background-color: #fe5b52;
   }
 `;
 
-const CreatedAt = styled.div`
-  font-size: 0.8em;
-  text-align: right;
-`;
-
-const TextArea = styled.textarea`
-  width: 100%;
-  height: 150px;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+const Avatar = styled.img`
+  max-width: 100px;
+  border-radius: 50%;
 `;
 
 const Button = styled.button`
-  margin-right: 10px;
+  margin-top: 10px;
   padding: 8px 16px;
+  margin: 5px 5px;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  background-color: #ffcc00;
-  font-size: 14px;
-
-  &:hover {
-    background-color: #ffdb4d;
-  }
-`;
-
-const DeleteLink = styled.div`
-  background-color: #fe5b52;
-  color: #fff;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  margin-right: 260px;
-
-  &:hover {
-    background-color: #fe3228;
-  }
-`;
-
-const HomeButton = styled(Link)`
-  background-color: #007bff;
-  color: #fff;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 14px;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #0056b3;
   }
 `;
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
+
+const UpdateButton = styled(Button)`
+  background-color: #ffc107;
+  color: black;
+  &:hover {
+    background-color: #ffcd39;
+  }
+`;
+
+const DeleteButton = styled(Button)`
+  background-color: #dc3545;
+  &:hover {
+    background-color: #c82333;
+  }
+`;
+
+const Textarea = styled.textarea`
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 8px;
+`;
+
+const SentTo = styled.p`
+  font-weight: bold;
+  margin-bottom: 5px;
+`;
+
+const LetterNickname = styled.p`
+  font-size: 30px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+`;
+
+const LetterContent = styled.p`
+  font-size: 50px;
+  margin-bottom: 20px;
+`;
+
+const CreatedAt = styled.p`
+  padding: 10px;
+  text-align: right;
 `;

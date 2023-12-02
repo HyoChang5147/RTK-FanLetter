@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import React from "react";
+import aespa from "../assets/aespa _forever.png";
 
 function Footer() {
   return (
     <StyledDiv>
       <StyledAnchor>개인정보처리방침</StyledAnchor>
-      <StyledAnchor>서비스 이용약관</StyledAnchor>
+      <ImageAp src={aespa} alt="aespaImage" />
       <StyledAnchor>고객센터</StyledAnchor>
     </StyledDiv>
   );
@@ -18,6 +19,13 @@ const StyledDiv = styled.div`
   padding: 20px;
   display: flex;
   justify-content: space-between;
+`;
+
+const ImageAp = styled.img`
+  width: 80px;
+  height: auto;
+  cursor: pointer;
+  margin: -12px 0;
 `;
 
 const StyledAnchor = styled.a`

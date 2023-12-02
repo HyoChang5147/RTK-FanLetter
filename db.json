@@ -1,19 +1,88 @@
 {
-  "posts": [
+  "letters": [
     {
-      "id": 1,
-      "title": "json-server",
-      "author": "typicode"
-    }
-  ],
-  "comments": [
+      "userId": "김 아무개",
+      "password": "123",
+      "nickname": "아이린 1픽",
+      "id": 1
+    },
     {
-      "id": 1,
-      "body": "some comment",
-      "postId": 1
+      "userId": "홍길동",
+      "password": "1234",
+      "nickname": "슬기 1픽",
+      "id": 2
+    },
+    {
+      "userId": "흥부",
+      "password": "12345",
+      "nickname": "웬디 1픽",
+      "id": 3
+    },
+    {
+      "userId": "홍길동",
+      "password": "1234",
+      "nickname": "",
+      "id": 4
+    },
+    {
+      "userId": "jhc729",
+      "password": "gyckd729",
+      "nickname": "조이 1픽",
+      "id": 5
+    },
+    {
+      "content": "와우",
+      "selectedMember": "IRENE",
+      "nickname": "12311231",
+      "id": 6
+    },
+    {
+      "id": "28b87b57-dc44-8de8-74bf-34fce54d748a",
+      "nickname": "12311231",
+      "content": "진짜 성공한거야? 진짜 힘들다 그래도 성공했다 벌써 2시네 오늘은 여기까지?\n",
+      "avatar": "https://react-jwt-avatar.s3.ap-northeast-2.amazonaws.com/23-11-29/bd48d42a-bf19-411f-882e-f7e91d169a62.jpg",
+      "writedTo": "IRENE",
+      "createdAt": "2023. 12. 2. 오전 1:48:50",
+      "userId": "jhc729"
+    },
+    {
+      "id": "7e11aa49-a115-84f6-e015-63fddc642dad",
+      "nickname": "12311231",
+      "content": "제발",
+      "avatar": "https://react-jwt-avatar.s3.ap-northeast-2.amazonaws.com/23-11-29/bd48d42a-bf19-411f-882e-f7e91d169a62.jpg",
+      "writedTo": "WENDY",
+      "createdAt": "2023. 12. 2. 오전 2:33:13",
+      "userId": "jhc729"
+    },
+    {
+      "id": "01b7916a-2c8b-82d3-09df-3a63447dfd14",
+      "nickname": "12311231",
+      "content": "dasdacsca",
+      "avatar": "https://react-jwt-avatar.s3.ap-northeast-2.amazonaws.com/23-11-29/bd48d42a-bf19-411f-882e-f7e91d169a62.jpg",
+      "writedTo": "IRENE",
+      "createdAt": "2023. 12. 2. 오전 3:00:52",
+      "userId": "jhc729",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpoYzcyOSIsImlhdCI6MTcwMTQ1MzQyNCwiZXhwIjoxNzAxNDU3MDI0fQ.Y17I2uihgj7S2b2Ur_RwrzmxBqZoLPVEi1HPWk3WQlo"
+    },
+    {
+      "id": "7518b6e3-3a40-3841-f579-e0bc6375b259",
+      "nickname": "12311231",
+      "content": "sdcvzxcvzxvsdv",
+      "avatar": "https://react-jwt-avatar.s3.ap-northeast-2.amazonaws.com/23-11-29/bd48d42a-bf19-411f-882e-f7e91d169a62.jpg",
+      "writedTo": "IRENE",
+      "createdAt": "2023. 12. 2. 오전 3:12:13",
+      "userId": "jhc729",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImpoYzcyOSIsImlhdCI6MTcwMTQ1MzQyNCwiZXhwIjoxNzAxNDU3MDI0fQ.Y17I2uihgj7S2b2Ur_RwrzmxBqZoLPVEi1HPWk3WQlo"
+    },
+    {
+      "id": "d5b142ef-8768-b7bc-3284-109cf3fd61f4",
+      "nickname": "나다",
+      "content": "오늘은 여기까지",
+      "avatar": null,
+      "writedTo": "SEULGI",
+      "createdAt": "2023. 12. 2. 오전 3:16:32",
+      "userId": "zzzzzzzzzz",
+      "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Inp6enp6enp6enoiLCJpYXQiOjE3MDE0NTQ1NzMsImV4cCI6MTcwMTQ1ODE3M30.9BUgVXjwm5H6T6j03UwBytCOLy1xms18vUyj-fS212k"
     }
-  ],
-  "profile": {
-    "name": "typicode"
-  }
+  ]
 }

@@ -34,16 +34,18 @@ const ButtonContainer = styled.div`
 `;
 
 const Button = styled.button`
-  width: 220px;
+  width: 150px;
+  height: 70px;
   margin: 5px;
   background-color: ${(props) => (props.selected ? "#fe3228" : "#fe5b52")};
   color: #fff;
   border-radius: 10px;
+  margin-top: 25px;
   cursor: pointer;
 
   img {
-    width: 200px;
-    height: 100px;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     margin-right: 5px;
   }
