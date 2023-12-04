@@ -6,7 +6,7 @@ export const __loginUser = createAsyncThunk(
   async ({ id, password }, { rejectWithValue }) => {
     try {
       const data = { id, password };
-      const response = await authServerAPI.post("/login?expiresIn=10s", data);
+      const response = await authServerAPI.post("/login?expiresIn=10m", data);
       // /login?expiresIn=10m
       const { accessToken } = response.data;
 
