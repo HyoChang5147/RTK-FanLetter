@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { __fetchLetters } from "../redux/modules/lettersSlice";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { initialize } from "../redux/modules/lettersSlice";
 
 function FanLetterList() {
   const dispatch = useDispatch();
@@ -10,23 +11,42 @@ function FanLetterList() {
   const selectedMember = useSelector((state) => state.members.selectedMember);
   const loading = useSelector((state) => state.lettersSlice.loading);
   const error = useSelector((state) => state.lettersSlice.error);
+  const errorMessage = useSelector((state) => state.lettersSlice.errorMessage);
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(__fetchLetters());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (error) {
+      navigate("/login");
+      dispatch(initialize());
+    }
+  }, [error]);
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div>Error: {errorMessage} </div>;
   }
 
-  const filteredLetters = letters.filter(
-    (letter) => letter.writedTo === selectedMember
-  );
+  let filteredLetters = [];
+  if (letters.length !== 0) {
+    filteredLetters = letters.filter(
+      (letter) => letter.writedTo === selectedMember
+    );
+  }
+
+  if (filteredLetters.length === 0) {
+    return (
+      <NoLettersMessage>
+        {selectedMember}에게 Fan Letter를 작성해 주세요!
+      </NoLettersMessage>
+    );
+  }
 
   return (
     <Container>
@@ -97,7 +117,7 @@ const LetterTextContainer = styled.div`
 `;
 
 const LetterNickname = styled.h3`
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   font-weight: bold;
   text-align: left;
 `;
@@ -108,6 +128,7 @@ const LetterContent = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 20px;
 `;
 
 const SentTo = styled.p`
@@ -120,4 +141,11 @@ const SentTo = styled.p`
 const CreatedAt = styled.div`
   font-size: 0.8em;
   text-align: right;
+`;
+
+const NoLettersMessage = styled.div`
+  margin: 20px;
+  font-size: 18px;
+  color: #555;
+  text-align: center;
 `;

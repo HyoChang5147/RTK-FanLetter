@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import jsonServerAPI from "../../axios/api";
 
 export const __fetchLetters = createAsyncThunk(
   "letters/fetchLetters",
-  async (_, thunkAPI) => {
+  async (fetchLetters, thunkAPI) => {
     try {
-      const response = await axios.get("http://localhost:4000/letters");
+      const response = await jsonServerAPI.get("/letters", fetchLetters);
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
-      console.log("error:", error);
+      console.log(error);
       return thunkAPI.rejectWithValue(error);
     }
   }
@@ -18,13 +18,10 @@ export const __addLetter = createAsyncThunk(
   "letters/addLetter",
   async (letterData, thunkAPI) => {
     try {
-      const response = await axios.post(
-        "http://localhost:4000/letters",
-        letterData
-      );
+      const response = await jsonServerAPI.post("/letters", letterData);
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
-      console.log("error:", error);
+      console.log("error:", error.response.data.message);
       return thunkAPI.rejectWithValue(error);
     }
   }
@@ -34,7 +31,7 @@ export const __deleteLetter = createAsyncThunk(
   "letters/deleteLetter",
   async (letterId, thunkAPI) => {
     try {
-      await axios.delete(`http://localhost:4000/letters/${letterId}`);
+      await jsonServerAPI.delete(`/letters/${letterId}`);
       return thunkAPI.fulfillWithValue(letterId);
     } catch (error) {
       console.log("error:", error);
@@ -47,12 +44,9 @@ export const __updateLetterContent = createAsyncThunk(
   "letters/updateLetterContent",
   async ({ letterId, updatedContent }, thunkAPI) => {
     try {
-      const response = await axios.patch(
-        `http://localhost:4000/letters/${letterId}`,
-        {
-          content: updatedContent,
-        }
-      );
+      const response = await jsonServerAPI.patch(`/letters/${letterId}`, {
+        content: updatedContent,
+      });
       return thunkAPI.fulfillWithValue(response.data);
     } catch (error) {
       console.log("error:", error);
@@ -65,12 +59,17 @@ const initialState = {
   letters: [],
   loading: false,
   error: null,
+  errorMessage: "",
 };
 
 const lettersSlice = createSlice({
   name: "letters",
   initialState,
-  reducers: {},
+  reducers: {
+    initialize: () => {
+      return { ...initialState };
+    },
+  },
   extraReducers: {
     [__fetchLetters.pending]: (state) => {
       state.loading = true;
@@ -83,7 +82,10 @@ const lettersSlice = createSlice({
     },
     [__fetchLetters.rejected]: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = true;
+
+      state.errorMessage =
+        action.payload.response.data.message || "데이터 호출 오류";
     },
     [__addLetter.pending]: (state) => {
       state.loading = true;
@@ -96,7 +98,8 @@ const lettersSlice = createSlice({
     },
     [__addLetter.rejected]: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = true;
+      state.errorMessage = action.payload.response.data.message || "등록 오류";
     },
     [__deleteLetter.pending]: (state) => {
       state.loading = true;
@@ -111,7 +114,8 @@ const lettersSlice = createSlice({
     },
     [__deleteLetter.rejected]: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = true;
+      state.errorMessage = action.payload.response.data.message || "삭제 오류";
     },
     [__updateLetterContent.pending]: (state) => {
       state.loading = true;
@@ -129,9 +133,12 @@ const lettersSlice = createSlice({
     },
     [__updateLetterContent.rejected]: (state, action) => {
       state.loading = false;
-      state.error = action.payload;
+      state.error = true;
+      state.errorMessage = action.payload.response.data.message || "수정 오류";
     },
   },
 });
+
+export const { initialize } = lettersSlice.actions;
 
 export default lettersSlice.reducer;

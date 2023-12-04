@@ -1,38 +1,27 @@
-import React, { useEffect } from "react";
 import Input from "components/Input";
 import MemberButton from "components/MemberButton";
-import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import FanLetterList from "components/FanLetterList";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const notify = (message) => toast(message);
+
+  const accessToken = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const loginSuccess = localStorage.getItem("loginSuccess");
-
-    if (loginSuccess) {
-      notify("로그인 성공!");
-      localStorage.removeItem("loginSuccess");
+    if (!accessToken) {
+      navigate("/login");
     }
-    // if (!userData.accessToken) {
-    //   navigate("login");
-    // }
-  }, [navigate]);
+  }, [navigate, accessToken]);
 
-  return (
-    <>
-      <div>
-        <MemberButton />
-        <Input />
-        <FanLetterList />
-      </div>
-      <ToastContainer />
-    </>
-  );
+  return accessToken ? (
+    <div>
+      <MemberButton />
+      <Input />
+      <FanLetterList />
+    </div>
+  ) : null;
 }
 
 export default Home;

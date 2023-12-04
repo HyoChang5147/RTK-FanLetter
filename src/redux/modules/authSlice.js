@@ -1,31 +1,60 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { authServerAPI } from "../../axios/api";
 
-const initialState = {
-  isLoggedIn: false,
-  userId: null,
-  loginSuccessData: null,
-};
+export const __loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async ({ id, password }, { rejectWithValue }) => {
+    try {
+      const data = { id, password };
+      const response = await authServerAPI.post("/login?expiresIn=10s", data);
+      // /login?expiresIn=10m
+      const { accessToken } = response.data;
 
-export const notify = (message) => toast(message);
+      localStorage.setItem("accessToken", accessToken);
+      authServerAPI.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${accessToken}`;
+      localStorage.setItem("userData", JSON.stringify(response.data));
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const __logoutUser = createAsyncThunk("auth/logoutUser", () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("userData");
+  delete authServerAPI.defaults.headers.common["Authorization"];
+});
 
 const authSlice = createSlice({
   name: "auth",
-  initialState,
-  reducers: {
-    login(state, action) {
-      state.isLoggedIn = true;
-      state.userId = action.payload.userId;
-    },
-    logout(state) {
-      state.isLoggedIn = false;
-      state.userId = null;
-      state.loginSuccessData = null;
-      localStorage.removeItem("userData");
-      notify("로그아웃 성공!"); // Notify on logout
-    },
+  initialState: {
+    user: null,
+    isLoading: false,
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(__loginUser.pending, (state) => {
+      state.isLoading = true;
+      state.error = null;
+    });
+    builder.addCase(__loginUser.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.user = action.payload;
+    });
+    builder.addCase(__loginUser.rejected, (state, action) => {
+      state.isLoading = false;
+      state.error = action.payload;
+    });
+
+    builder.addCase(__logoutUser.fulfilled, (state) => {
+      state.user = null;
+    });
   },
 });
 
-export const { login, logout } = authSlice.actions;
 export default authSlice.reducer;

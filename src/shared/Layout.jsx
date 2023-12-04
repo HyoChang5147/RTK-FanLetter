@@ -2,9 +2,19 @@ import Footer from "components/Footer";
 import LogOut from "components/LogOut";
 import { Outlet } from "react-router-dom";
 import redVelvetImage from "../assets/Red-Velvet-Logo-Sappy-2019.png";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 function Layout() {
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    setUserData(userData);
+  }, []);
+
   return (
     <LayoutContainer>
       <Header>
@@ -18,7 +28,13 @@ function Layout() {
           </Title>
           <RightAlignedItems>
             <ProfileLogoutWrapper>
-              <button>My Profile</button>
+              <ProfileButton
+                onClick={() =>
+                  navigate(`/myprofile/${userData.userId}`, { state: userData })
+                }
+              >
+                My Profile
+              </ProfileButton>
               <LogOut />
             </ProfileLogoutWrapper>
           </RightAlignedItems>
@@ -37,7 +53,6 @@ export default Layout;
 const LayoutContainer = styled.div`
   width: 100%;
   height: 100vh;
-  /* min-width: 600px; */
 `;
 
 const Header = styled.header`
@@ -86,4 +101,19 @@ const ProfileLogoutWrapper = styled.div`
   justify-content: flex-end;
   margin-left: 20px;
   gap: 10px;
+`;
+
+const ProfileButton = styled.button`
+  padding: 11px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #2980b9;
+  }
 `;

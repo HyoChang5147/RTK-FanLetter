@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import memberData from "shared/data";
 import styled from "styled-components";
 import { __addLetter } from "../redux/modules/lettersSlice";
@@ -7,7 +8,9 @@ import uuid from "react-uuid";
 
 const Input = () => {
   const dispatch = useDispatch();
-  const userData = JSON.parse(localStorage.getItem("userData"));
+  const navigate = useNavigate();
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+
   const [content, setContent] = useState("");
   const [selectedMember, setSelectedMember] = useState("");
 

@@ -1,26 +1,41 @@
 import axios from "axios";
 
-const BASE_URL = process.env.REACT_APP_LOGIN_SERVER_URL;
+const AUTH_SERVER_API_BASE_URL = process.env.REACT_APP_LOGIN_SERVER_URL;
 
-const instance = axios.create({
-  baseURL: BASE_URL,
+export const jsonServerAPI = axios.create({
+  baseURL: "http://localhost:4000",
 });
 
-instance.interceptors.request.use(
-  // 요청을 보내기 전 수행되는 함수
-  function (config) {
-    console.log("인터셉터 요청 성공!");
-    return config;
+const getToken = () => {
+  const accessToken = localStorage.getItem("accessToken");
+  return accessToken;
+};
+
+export const authServerAPI = axios.create({
+  baseURL: AUTH_SERVER_API_BASE_URL,
+});
+
+jsonServerAPI.interceptors.request.use(
+  async function (config) {
+    const response = await authServerAPI.get("/user", {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    });
+    if (response.data.success === true) {
+      return config;
+    } else {
+      localStorage.setItem("accessToken", undefined);
+    }
   },
 
-  // 오류 요정을 보내기 전 수행되는 함수
   function (error) {
-    console.log("인터셉터 요청 오류!");
+    console.log("요청 인터셉터 오류:", error);
     return Promise.reject(error);
   }
 );
 
-instance.interceptors.response.use(
+jsonServerAPI.interceptors.response.use(
   // 응답을 내보내기 전 수행되는 함수
   function (response) {
     console.log("인터셉터 응답 받았습니다!");
@@ -34,4 +49,7 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+// call 탈취
+// 내가 원하는대로 바꿔요 // 동작을 바꿈 // 반환
+
+export default jsonServerAPI;
